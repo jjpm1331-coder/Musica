@@ -2,213 +2,289 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mi Reproductor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Conjunto Fortaleza</title>
 
 <style>
+
 body{
-    font-family: Arial, sans-serif;
     margin:0;
-    background:#e0e0e0;
+    background:#181818;
+    color:white;
+    font-family:Segoe UI,Arial,sans-serif;
 }
 
-.panel{
-    background:#0d6588;
+.player{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.titulo{
+    text-align:center;
+    font-size:28px;
+    margin-bottom:20px;
+}
+
+.info{
+    background:#202020;
     padding:15px;
-    display:flex;
-    align-items:center;
-    gap:20px;
-    color:white;
+    border-radius:10px;
+    margin-bottom:15px;
 }
 
-.boton{
-    width:90px;
-    height:90px;
-    background:black;
+#songTitle{
+    font-size:20px;
+    color:#4fc3f7;
+}
+
+.controls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px 0;
+}
+
+button{
+    background:#4fc3f7;
     border:none;
-    color:white;
-    font-size:40px;
+    padding:12px 18px;
+    border-radius:8px;
     cursor:pointer;
-}
-
-.controles{
-    display:flex;
-    flex-direction:column;
-    gap:15px;
     font-size:18px;
 }
 
-.lista{
-    margin:25px;
-    background:#0d6588;
-    min-height:300px;
-    padding:15px;
+button:hover{
+    background:#29b6f6;
 }
 
-.lista a{
-    display:block;
-    color:white;
-    margin-bottom:8px;
-    text-decoration:none;
+#progress{
+    width:100%;
+}
+
+.playlist{
+    background:#202020;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.song{
+    padding:12px;
+    border-bottom:1px solid #333;
     cursor:pointer;
 }
 
-.lista a:hover{
-    text-decoration:underline;
+.song:hover{
+    background:#2e2e2e;
 }
 
-.activa{
-    color:yellow !important;
-    font-weight:bold;
+.active{
+    background:#1565c0;
 }
+
+.time{
+    text-align:center;
+    margin-top:10px;
+}
+
+.volume{
+    margin-top:15px;
+}
+
+input[type=range]{
+    width:100%;
+}
+
 </style>
 </head>
 <body>
 
-<div class="panel">
+<div class="player">
 
-    <button class="boton" onclick="playMusic()">▶</button>
+<div class="titulo">
+🎵 Conjunto Fortaleza
+</div>
 
-    <button class="boton" onclick="pauseMusic()">❚❚</button>
+<div class="info">
+<div id="songTitle">
+02 Cristo Llamando está
+</div>
+</div>
 
-    <button class="boton" onclick="stopMusic()">■</button>
+<audio id="audio"></audio>
 
-    <div class="controles">
-        <button onclick="anterior()">Anterior</button>
-        <button onclick="siguiente()">Siguiente</button>
-    </div>
+<div class="controls">
+<button onclick="prevSong()">⏮</button>
+<button onclick="playSong()">▶</button>
+<button onclick="pauseSong()">⏸</button>
+<button onclick="stopSong()">⏹</button>
+<button onclick="nextSong()">⏭</button>
+</div>
+
+<input type="range" id="progress" value="0">
+
+<div class="time">
+<span id="current">0:00</span>
+ /
+<span id="duration">0:00</span>
+</div>
+
+<div class="volume">
+🔊
+<input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+</div>
+
+<br>
+
+<div class="playlist" id="playlist"></div>
 
 </div>
 
-<div class="lista" id="playlist"></div>
-
-<audio id="player"></audio>
-
 <script>
 
-const canciones = [
+const songs = [
 {
-nombre:"Canción 1",
-archivo:"music/cancion1.mp3"
-},
-{
-nombre:"Canción 2",
-archivo:"music/cancion2.mp3"
-},
-{
-nombre:"Canción 3",
-archivo:"music/cancion3.mp3"
-},
-{
-nombre:"Canción 4",
-archivo:"music/cancion4.mp3"
-},
-{
-nombre:"Canción 5",
-archivo:"music/cancion5.mp3"
-},
-{
-nombre:"Canción 6",
-archivo:"music/cancion6.mp3"
+title:"02 Cristo Llamando está",
+file:"02 Cristo Llamando está.mp3"
 }
 ];
 
-const player = document.getElementById("player");
-const playlist = document.getElementById("playlist");
+let currentSong=0;
 
-let actual = 0;
+const audio=document.getElementById("audio");
+const playlist=document.getElementById("playlist");
+const title=document.getElementById("songTitle");
 
-function cargarLista(){
+function renderPlaylist(){
 
 playlist.innerHTML="";
 
-canciones.forEach((cancion,index)=>{
+songs.forEach((song,index)=>{
 
-const item=document.createElement("a");
+const div=document.createElement("div");
 
-item.textContent=cancion.nombre;
+div.className="song";
 
-if(index===actual){
-item.classList.add("activa");
+if(index===currentSong){
+div.classList.add("active");
 }
 
-item.onclick=()=>{
-actual=index;
-reproducirActual();
+div.textContent=song.title;
+
+div.onclick=()=>{
+currentSong=index;
+loadSong();
+audio.play();
 };
 
-playlist.appendChild(item);
+playlist.appendChild(div);
 
 });
 
 }
 
-function reproducirActual(){
+function loadSong(){
 
-player.src=canciones[actual].archivo;
-player.play();
+audio.src=songs[currentSong].file;
 
-cargarLista();
+title.textContent=songs[currentSong].title;
 
-}
-
-function playMusic(){
-
-if(!player.src){
-reproducirActual();
-}else{
-player.play();
-}
+renderPlaylist();
 
 }
 
-function pauseMusic(){
-player.pause();
+function playSong(){
+audio.play();
 }
 
-function stopMusic(){
-player.pause();
-player.currentTime=0;
+function pauseSong(){
+audio.pause();
 }
 
-function siguiente(){
-
-actual++;
-
-if(actual>=canciones.length){
-actual=0;
+function stopSong(){
+audio.pause();
+audio.currentTime=0;
 }
 
-reproducirActual();
+function nextSong(){
 
+currentSong++;
+
+if(currentSong>=songs.length){
+currentSong=0;
 }
 
-function anterior(){
-
-actual--;
-
-if(actual<0){
-actual=canciones.length-1;
-}
-
-reproducirActual();
+loadSong();
+audio.play();
 
 }
 
-/* Avanza automáticamente */
-player.addEventListener("ended",()=>{
+function prevSong(){
 
-actual++;
+currentSong--;
 
-if(actual>=canciones.length){
-actual=0;
+if(currentSong<0){
+currentSong=songs.length-1;
 }
 
-reproducirActual();
+loadSong();
+audio.play();
+
+}
+
+audio.addEventListener("ended",()=>{
+
+currentSong++;
+
+if(currentSong>=songs.length){
+currentSong=0;
+}
+
+loadSong();
+audio.play();
 
 });
 
-cargarLista();
+const progress=document.getElementById("progress");
+
+audio.addEventListener("timeupdate",()=>{
+
+progress.value=(audio.currentTime/audio.duration)*100 || 0;
+
+document.getElementById("current").textContent=
+formatTime(audio.currentTime);
+
+document.getElementById("duration").textContent=
+formatTime(audio.duration);
+
+});
+
+progress.addEventListener("input",()=>{
+
+audio.currentTime=
+(progress.value/100)*audio.duration;
+
+});
+
+document.getElementById("volume")
+.addEventListener("input",(e)=>{
+audio.volume=e.target.value;
+});
+
+function formatTime(time){
+
+if(isNaN(time)) return "0:00";
+
+let min=Math.floor(time/60);
+let sec=Math.floor(time%60);
+
+return min+":"+(sec<10?"0":"")+sec;
+
+}
+
+loadSong();
 
 </script>
 
