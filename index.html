@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Conjunto Fortaleza</title>
 
@@ -10,78 +10,58 @@
 
 body{
     margin:0;
-    background:#181818;
+    background:#111827;
     color:white;
     font-family:Segoe UI,Arial,sans-serif;
 }
 
-.player{
-    max-width:900px;
+.container{
+    max-width:1000px;
     margin:auto;
     padding:20px;
 }
 
-.titulo{
+.player{
+    background:#1f2937;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 25px rgba(0,0,0,.4);
+}
+
+h1{
     text-align:center;
-    font-size:28px;
-    margin-bottom:20px;
 }
 
-.info{
-    background:#202020;
-    padding:15px;
-    border-radius:10px;
+.current{
+    font-size:22px;
+    color:#60a5fa;
     margin-bottom:15px;
-}
-
-#songTitle{
-    font-size:20px;
-    color:#4fc3f7;
 }
 
 .controls{
     display:flex;
     justify-content:center;
     gap:10px;
-    flex-wrap:wrap;
     margin:20px 0;
 }
 
 button{
-    background:#4fc3f7;
+    background:#2563eb;
     border:none;
+    color:white;
+    font-size:20px;
     padding:12px 18px;
-    border-radius:8px;
+    border-radius:10px;
     cursor:pointer;
-    font-size:18px;
 }
 
 button:hover{
-    background:#29b6f6;
+    background:#3b82f6;
 }
 
-#progress{
+#progress,
+#volume{
     width:100%;
-}
-
-.playlist{
-    background:#202020;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.song{
-    padding:12px;
-    border-bottom:1px solid #333;
-    cursor:pointer;
-}
-
-.song:hover{
-    background:#2e2e2e;
-}
-
-.active{
-    background:#1565c0;
 }
 
 .time{
@@ -89,73 +69,146 @@ button:hover{
     margin-top:10px;
 }
 
-.volume{
-    margin-top:15px;
+.playlist{
+    margin-top:20px;
+    background:#1f2937;
+    border-radius:15px;
+    overflow:hidden;
 }
 
-input[type=range]{
-    width:100%;
+.song{
+    padding:15px;
+    border-bottom:1px solid #374151;
+    cursor:pointer;
+}
+
+.song:hover{
+    background:#374151;
+}
+
+.active{
+    background:#2563eb;
+}
+
+.total{
+    margin-top:15px;
+    color:#9ca3af;
 }
 
 </style>
 </head>
+
 <body>
+
+<div class="container">
 
 <div class="player">
 
-<div class="titulo">
-🎵 Conjunto Fortaleza
-</div>
+<h1>🎵 Conjunto Fortaleza</h1>
 
-<div class="info">
-<div id="songTitle">
-02 Cristo Llamando está
-</div>
+<div class="current" id="currentSong">
+Selecciona una canción
 </div>
 
 <audio id="audio"></audio>
 
-<div class="controls">
-<button onclick="prevSong()">⏮</button>
-<button onclick="playSong()">▶</button>
-<button onclick="pauseSong()">⏸</button>
-<button onclick="stopSong()">⏹</button>
-<button onclick="nextSong()">⏭</button>
-</div>
-
 <input type="range" id="progress" value="0">
 
 <div class="time">
-<span id="current">0:00</span>
+<span id="currentTime">0:00</span>
  /
 <span id="duration">0:00</span>
 </div>
 
-<div class="volume">
-🔊
-<input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+<div class="controls">
+<button onclick="prevSong()">⏮</button>
+<button onclick="audio.play()">▶</button>
+<button onclick="audio.pause()">⏸</button>
+<button onclick="stopSong()">⏹</button>
+<button onclick="nextSong()">⏭</button>
 </div>
 
-<br>
+🔊
+
+<input type="range" id="volume"
+min="0"
+max="1"
+step="0.1"
+value="1">
+
+<div class="total">
+10 canciones
+</div>
+
+</div>
 
 <div class="playlist" id="playlist"></div>
 
 </div>
 
+
 <script>
 
 const songs = [
+
 {
-title:"02 Cristo Llamando está",
-file:"02 Cristo Llamando está.mp3"
+title:"Dios es Nuestro Refugio",
+file:"music/01-Dios-es-Nuestro-Refugio.mp3"
+},
+
+{
+title:"Cristo Llamando Está",
+file:"music/02-Cristo-Llamando-esta.mp3"
+},
+
+{
+title:"Padre de Amor",
+file:"music/08-Padre-de-Amor.mp3"
+},
+
+{
+title:"Dios es Nuestro Refugio (Pista)",
+file:"music/09-Dios-es-Nuestro-P-.mp3"
+},
+
+{
+title:"Cristo Llamando (Pista)",
+file:"music/10-Cristo-Llamando-P-.mp3"
+},
+
+{
+title:"Padre de Amor (Pista)",
+file:"music/13-Padre-de-Amor-P-.mp3"
+},
+
+{
+title:"Dame Agua Viva",
+file:"music/Dame-agua-viva.mp3"
+},
+
+{
+title:"Por Su Gran Amor",
+file:"music/Por-su-gran-amor.mp3"
+},
+
+{
+title:"Solo a Mi Dios Yo Alabo",
+file:"music/Solo-a-mi-Dios-yo-alabo.mp3"
+},
+
+{
+title:"Tú Eres Santo",
+file:"music/Tu-eres-Santo.mp3"
 }
+
 ];
 
-let currentSong=0;
+let current = 0;
 
 const audio=document.getElementById("audio");
+const currentSong=document.getElementById("currentSong");
 const playlist=document.getElementById("playlist");
-const title=document.getElementById("songTitle");
+const progress=document.getElementById("progress");
 
 function renderPlaylist(){
 
@@ -163,23 +216,27 @@ playlist.innerHTML="";
 
 songs.forEach((song,index)=>{
 
-const div=document.createElement("div");
+const item=document.createElement("div");
 
-div.className="song";
+item.className="song";
 
-if(index===currentSong){
-div.classList.add("active");
+if(index===current){
+item.classList.add("active");
 }
 
-div.textContent=song.title;
+item.innerHTML=song.title;
 
-div.onclick=()=>{
-currentSong=index;
+item.onclick=()=>{
+
+current=index;
+
 loadSong();
+
 audio.play();
+
 };
 
-playlist.appendChild(div);
+playlist.appendChild(item);
 
 });
 
@@ -187,76 +244,60 @@ playlist.appendChild(div);
 
 function loadSong(){
 
-audio.src=songs[currentSong].file;
+audio.src=songs[current].file;
 
-title.textContent=songs[currentSong].title;
+currentSong.innerHTML=songs[current].title;
 
 renderPlaylist();
 
 }
 
-function playSong(){
-audio.play();
-}
-
-function pauseSong(){
-audio.pause();
-}
-
-function stopSong(){
-audio.pause();
-audio.currentTime=0;
-}
-
 function nextSong(){
 
-currentSong++;
+current++;
 
-if(currentSong>=songs.length){
-currentSong=0;
+if(current>=songs.length){
+current=0;
 }
 
 loadSong();
+
 audio.play();
 
 }
 
 function prevSong(){
 
-currentSong--;
+current--;
 
-if(currentSong<0){
-currentSong=songs.length-1;
+if(current<0){
+current=songs.length-1;
 }
 
 loadSong();
+
 audio.play();
 
 }
 
-audio.addEventListener("ended",()=>{
+function stopSong(){
 
-currentSong++;
+audio.pause();
 
-if(currentSong>=songs.length){
-currentSong=0;
+audio.currentTime=0;
+
 }
 
-loadSong();
-audio.play();
-
-});
-
-const progress=document.getElementById("progress");
+audio.addEventListener("ended",nextSong);
 
 audio.addEventListener("timeupdate",()=>{
 
-progress.value=(audio.currentTime/audio.duration)*100 || 0;
+progress.value=(audio.currentTime/audio.duration)*100||0;
 
-document.getElementById("current").textContent=
+document.getElementById("currentTime").innerHTML=
 formatTime(audio.currentTime);
 
-document.getElementById("duration").textContent=
+document.getElementById("duration").innerHTML=
 formatTime(audio.duration);
 
 });
@@ -270,7 +311,9 @@ audio.currentTime=
 
 document.getElementById("volume")
 .addEventListener("input",(e)=>{
+
 audio.volume=e.target.value;
+
 });
 
 function formatTime(time){
