@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Reproductor</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    background:#e0e0e0;
+}
+
+.panel{
+    background:#0d6588;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:20px;
+    color:white;
+}
+
+.boton{
+    width:90px;
+    height:90px;
+    background:black;
+    border:none;
+    color:white;
+    font-size:40px;
+    cursor:pointer;
+}
+
+.controles{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    font-size:18px;
+}
+
+.lista{
+    margin:25px;
+    background:#0d6588;
+    min-height:300px;
+    padding:15px;
+}
+
+.lista a{
+    display:block;
+    color:white;
+    margin-bottom:8px;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.lista a:hover{
+    text-decoration:underline;
+}
+
+.activa{
+    color:yellow !important;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+
+    <button class="boton" onclick="playMusic()">▶</button>
+
+    <button class="boton" onclick="pauseMusic()">❚❚</button>
+
+    <button class="boton" onclick="stopMusic()">■</button>
+
+    <div class="controles">
+        <button onclick="anterior()">Anterior</button>
+        <button onclick="siguiente()">Siguiente</button>
+    </div>
+
+</div>
+
+<div class="lista" id="playlist"></div>
+
+<audio id="player"></audio>
+
+<script>
+
+const canciones = [
+{
+nombre:"Canción 1",
+archivo:"music/cancion1.mp3"
+},
+{
+nombre:"Canción 2",
+archivo:"music/cancion2.mp3"
+},
+{
+nombre:"Canción 3",
+archivo:"music/cancion3.mp3"
+},
+{
+nombre:"Canción 4",
+archivo:"music/cancion4.mp3"
+},
+{
+nombre:"Canción 5",
+archivo:"music/cancion5.mp3"
+},
+{
+nombre:"Canción 6",
+archivo:"music/cancion6.mp3"
+}
+];
+
+const player = document.getElementById("player");
+const playlist = document.getElementById("playlist");
+
+let actual = 0;
+
+function cargarLista(){
+
+playlist.innerHTML="";
+
+canciones.forEach((cancion,index)=>{
+
+const item=document.createElement("a");
+
+item.textContent=cancion.nombre;
+
+if(index===actual){
+item.classList.add("activa");
+}
+
+item.onclick=()=>{
+actual=index;
+reproducirActual();
+};
+
+playlist.appendChild(item);
+
+});
+
+}
+
+function reproducirActual(){
+
+player.src=canciones[actual].archivo;
+player.play();
+
+cargarLista();
+
+}
+
+function playMusic(){
+
+if(!player.src){
+reproducirActual();
+}else{
+player.play();
+}
+
+}
+
+function pauseMusic(){
+player.pause();
+}
+
+function stopMusic(){
+player.pause();
+player.currentTime=0;
+}
+
+function siguiente(){
+
+actual++;
+
+if(actual>=canciones.length){
+actual=0;
+}
+
+reproducirActual();
+
+}
+
+function anterior(){
+
+actual--;
+
+if(actual<0){
+actual=canciones.length-1;
+}
+
+reproducirActual();
+
+}
+
+/* Avanza automáticamente */
+player.addEventListener("ended",()=>{
+
+actual++;
+
+if(actual>=canciones.length){
+actual=0;
+}
+
+reproducirActual();
+
+});
+
+cargarLista();
+
+</script>
+
+</body>
+</html>
