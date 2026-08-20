@@ -2,40 +2,50 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Reproductor de Música para Ensayos</title>
 
 <style>
-
 body{
     margin:0;
-    background:#111827;
+    background:#07152e;
     color:white;
-    font-family:Segoe UI,Arial,sans-serif;
+    font-family:Segoe UI, Arial, sans-serif;
 }
 
 .container{
-    max-width:1000px;
-    margin:auto;
-    padding:20px;
+    max-width:900px;
+    margin:15px auto;
+    padding:10px;
 }
 
 .player{
-    background:#1f2937;
-    padding:20px;
+    background:#1e293b;
     border-radius:15px;
-    box-shadow:0 0 25px rgba(0,0,0,.4);
+    padding:20px;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
 }
 
 h1{
     text-align:center;
+    margin-top:0;
 }
 
-.current{
-    font-size:22px;
+#currentSong{
     color:#60a5fa;
-    margin-bottom:15px;
+    font-size:24px;
+    margin:20px 0;
+}
+
+#progress{
+    width:100%;
+}
+
+.time{
+    text-align:center;
+    margin:12px 0;
+    font-weight:bold;
 }
 
 .controls{
@@ -43,11 +53,12 @@ h1{
     justify-content:center;
     gap:10px;
     margin:20px 0;
+    flex-wrap:wrap;
 }
 
 button{
-    background:#2563eb;
     border:none;
+    background:#2563eb;
     color:white;
     font-size:20px;
     padding:12px 18px;
@@ -59,42 +70,35 @@ button:hover{
     background:#3b82f6;
 }
 
-#progress,
 #volume{
     width:100%;
 }
 
-.time{
-    text-align:center;
-    margin-top:10px;
+.total{
+    margin-top:20px;
+    color:#cbd5e1;
 }
 
 .playlist{
     margin-top:20px;
-    background:#1f2937;
+    background:#1e293b;
     border-radius:15px;
     overflow:hidden;
 }
 
 .song{
     padding:15px;
-    border-bottom:1px solid #374151;
     cursor:pointer;
+    border-bottom:1px solid #334155;
 }
 
 .song:hover{
-    background:#374151;
+    background:#334155;
 }
 
 .active{
     background:#2563eb;
 }
-
-.total{
-    margin-top:15px;
-    color:#9ca3af;
-}
-
 </style>
 </head>
 
@@ -106,8 +110,8 @@ button:hover{
 
 <h1>🎵 Reproductor de Música para Ensayos 🎵</h1>
 
-<div class="current" id="currentSong">
-Selecciona una canción
+<div id="currentSong">
+Dios es Nuestro Refugio
 </div>
 
 <audio id="audio"></audio>
@@ -128,16 +132,13 @@ Selecciona una canción
 <button onclick="nextSong()">⏭</button>
 </div>
 
+<div>
 🔊
-
-<input type="range" id="volume"
-min="0"
-max="1"
-step="0.1"
-value="1">
+<input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+</div>
 
 <div class="total">
-12 canciones
+12 canciones disponibles
 </div>
 
 </div>
@@ -145,7 +146,6 @@ value="1">
 <div class="playlist" id="playlist"></div>
 
 </div>
-
 
 <script>
 
@@ -187,6 +187,16 @@ file:"music/Dame-agua-viva.mp3"
 },
 
 {
+title:"Nuevo Corazón",
+file:"music/Nuevo-Corazon-DemoAlfredo.mp3"
+},
+
+{
+title:"Nuevo Corazón (Pista)",
+file:"music/Nuevo-Corazon-P.mp3"
+},
+
+{
 title:"Por Su Gran Amor",
 file:"music/Por-su-gran-amor.mp3"
 },
@@ -199,26 +209,18 @@ file:"music/Solo-a-mi-Dios-yo-alabo.mp3"
 {
 title:"Tú Eres Santo",
 file:"music/Tu-eres-Santo.mp3"
-},
+}
 
-{
-title:"Nuevo Corazon",
-file:"music/Nuevo-Corazon-DemoAlfredo.mp3"
-},
-
-{
-title:"Nuevo Corazon (Pista)",
-file:"music/Nuevo-Corazon-P.mp3"
-},
+];
 
 ];
 
 let current = 0;
 
-const audio=document.getElementById("audio");
-const currentSong=document.getElementById("currentSong");
-const playlist=document.getElementById("playlist");
-const progress=document.getElementById("progress");
+const audio = document.getElementById("audio");
+const playlist = document.getElementById("playlist");
+const currentSong = document.getElementById("currentSong");
+const progress = document.getElementById("progress");
 
 function renderPlaylist(){
 
@@ -234,16 +236,12 @@ if(index===current){
 item.classList.add("active");
 }
 
-item.innerHTML=song.title;
+item.textContent=song.title;
 
 item.onclick=()=>{
-
 current=index;
-
 loadSong();
-
 audio.play();
-
 };
 
 playlist.appendChild(item);
@@ -256,7 +254,7 @@ function loadSong(){
 
 audio.src=songs[current].file;
 
-currentSong.innerHTML=songs[current].title;
+currentSong.textContent=songs[current].title;
 
 renderPlaylist();
 
@@ -271,7 +269,6 @@ current=0;
 }
 
 loadSong();
-
 audio.play();
 
 }
@@ -285,7 +282,6 @@ current=songs.length-1;
 }
 
 loadSong();
-
 audio.play();
 
 }
@@ -293,7 +289,6 @@ audio.play();
 function stopSong(){
 
 audio.pause();
-
 audio.currentTime=0;
 
 }
@@ -304,10 +299,10 @@ audio.addEventListener("timeupdate",()=>{
 
 progress.value=(audio.currentTime/audio.duration)*100||0;
 
-document.getElementById("currentTime").innerHTML=
+document.getElementById("currentTime").textContent=
 formatTime(audio.currentTime);
 
-document.getElementById("duration").innerHTML=
+document.getElementById("duration").textContent=
 formatTime(audio.duration);
 
 });
@@ -333,7 +328,7 @@ if(isNaN(time)) return "0:00";
 let min=Math.floor(time/60);
 let sec=Math.floor(time%60);
 
-return min+":"+(sec<10?"0":"")+sec;
+return min + ":" + (sec < 10 ? "0" : "") + sec;
 
 }
 
