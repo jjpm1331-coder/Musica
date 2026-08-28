@@ -87,6 +87,9 @@ button:hover{
 }
 
 .song{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
     padding:15px;
     cursor:pointer;
     border-bottom:1px solid #334155;
@@ -98,6 +101,18 @@ button:hover{
 
 .active{
     background:#2563eb;
+}
+
+.download{
+    color:white;
+    text-decoration:none;
+    background:#0f766e;
+    padding:6px 10px;
+    border-radius:6px;
+}
+
+.download:hover{
+    background:#14b8a6;
 }
 </style>
 </head>
@@ -111,7 +126,7 @@ button:hover{
 <h1>🎵 Reproductor de Música para Ensayos 🎵</h1>
 
 <div id="currentSong">
-Dios es Nuestro Refugio
+Selecciona una canción
 </div>
 
 <audio id="audio"></audio>
@@ -137,9 +152,7 @@ Dios es Nuestro Refugio
 <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
 </div>
 
-<div class="total">
-16 canciones disponibles
-</div>
+<div class="total" id="totalSongs"></div>
 
 </div>
 
@@ -151,19 +164,18 @@ Dios es Nuestro Refugio
 
 const songs = [
 
-
 {
 title:"La Armadura de Dios",
 file:"music/La-Armadura-de-Dios.mp3"
 },
 
 {
-title:"Cristo en la historia",
+title:"Cristo en la Historia",
 file:"music/Cristo-En-La-Historia.mp3"
 },
 
 {
-title:"El mundo no es mi hogar",
+title:"El Mundo no es mi Hogar",
 file:"music/El-Mundo-no-es-mi-Hogar.mp3"
 },
 
@@ -243,24 +255,30 @@ const progress = document.getElementById("progress");
 
 function renderPlaylist(){
 
-playlist.innerHTML="";
+playlist.innerHTML = "";
 
 songs.forEach((song,index)=>{
 
-const item=document.createElement("div");
+const item = document.createElement("div");
+item.className = "song";
 
-item.className="song";
-
-if(index===current){
+if(index === current){
 item.classList.add("active");
 }
 
-item.textContent=song.title;
+item.innerHTML = `
+<span>${song.title}</span>
+<a class="download" href="${song.file}" download>⬇ Descargar</a>
+`;
 
-item.onclick=()=>{
-current=index;
+item.onclick = (e)=>{
+
+if(e.target.tagName === "A") return;
+
+current = index;
 loadSong();
 audio.play();
+
 };
 
 playlist.appendChild(item);
@@ -271,10 +289,8 @@ playlist.appendChild(item);
 
 function loadSong(){
 
-audio.src=songs[current].file;
-
-currentSong.textContent=songs[current].title;
-
+audio.src = songs[current].file;
+currentSong.textContent = songs[current].title;
 renderPlaylist();
 
 }
@@ -283,8 +299,8 @@ function nextSong(){
 
 current++;
 
-if(current>=songs.length){
-current=0;
+if(current >= songs.length){
+current = 0;
 }
 
 loadSong();
@@ -296,8 +312,8 @@ function prevSong(){
 
 current--;
 
-if(current<0){
-current=songs.length-1;
+if(current < 0){
+current = songs.length - 1;
 }
 
 loadSong();
@@ -308,35 +324,35 @@ audio.play();
 function stopSong(){
 
 audio.pause();
-audio.currentTime=0;
+audio.currentTime = 0;
 
 }
 
-audio.addEventListener("ended",nextSong);
+audio.addEventListener("ended", nextSong);
 
-audio.addEventListener("timeupdate",()=>{
+audio.addEventListener("timeupdate", ()=>{
 
-progress.value=(audio.currentTime/audio.duration)*100||0;
+progress.value = (audio.currentTime / audio.duration) * 100 || 0;
 
-document.getElementById("currentTime").textContent=
+document.getElementById("currentTime").textContent =
 formatTime(audio.currentTime);
 
-document.getElementById("duration").textContent=
+document.getElementById("duration").textContent =
 formatTime(audio.duration);
 
 });
 
-progress.addEventListener("input",()=>{
+progress.addEventListener("input", ()=>{
 
-audio.currentTime=
-(progress.value/100)*audio.duration;
+audio.currentTime =
+(progress.value / 100) * audio.duration;
 
 });
 
 document.getElementById("volume")
 .addEventListener("input",(e)=>{
 
-audio.volume=e.target.value;
+audio.volume = e.target.value;
 
 });
 
@@ -344,12 +360,15 @@ function formatTime(time){
 
 if(isNaN(time)) return "0:00";
 
-let min=Math.floor(time/60);
-let sec=Math.floor(time%60);
+let min = Math.floor(time / 60);
+let sec = Math.floor(time % 60);
 
 return min + ":" + (sec < 10 ? "0" : "") + sec;
 
 }
+
+document.getElementById("totalSongs").textContent =
+songs.length + " canciones disponibles";
 
 loadSong();
 
